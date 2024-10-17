@@ -1,0 +1,6 @@
+CodeT5/data/
+CodeT5+/data/
+__pycache__/
+*.pyc
+.DS_Store
+*.ipynb_checkpoints/
