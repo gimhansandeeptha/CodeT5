@@ -181,6 +181,10 @@ def main():
     args.train_filename, args.dev_filename, args.test_filename = get_filenames(args.data_dir, args.task, args.sub_task)
     fa = open(os.path.join(args.output_dir, 'summary.log'), 'a+')
 
+    logger.info("Args___________________: %s", args)
+    logger.info("Args-do-train__________: %s", args.do_train)
+    logger.info("Args-do-test___________: %s", args.do_test)
+    
     if args.do_train:
         if args.local_rank in [-1, 0] and args.data_num == -1:
             summary_fn = '{}/{}'.format(args.summary_dir, '/'.join(args.output_dir.split('/')[1:]))
