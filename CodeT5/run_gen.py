@@ -39,12 +39,14 @@ from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
+from hooks import self_attention_hook, cross_attention_hook, print_attention_inputs
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+EXTERNAL_DECODER=True
 
 def eval_ppl_epoch(args, eval_data, eval_examples, model, tokenizer):
     eval_sampler = SequentialSampler(eval_data)
@@ -174,6 +176,10 @@ def main():
     set_seed(args)
     config, model, tokenizer = build_or_load_gen_model(args)
     model.to(args.device)
+    if EXTERNAL_DECODER:
+        for n in range (model.config.num_decoder_layers):
+            self_attention_input = model.decoder.block[n].layer[0].SelfAttention.register_forward_hook(self_attention_hook)
+            cross_attention_input = model.decoder.block[n].layer[1].EncDecAttention.register_forward_hook(cross_attention_hook)
     if args.n_gpu > 1:
         # for DataParallel
         model = torch.nn.DataParallel(model)
@@ -257,7 +263,7 @@ def main():
                     global_step += 1
                     train_loss = round(tr_loss * args.gradient_accumulation_steps / (nb_tr_steps + 1), 4)
                     bar.set_description("[{}] Train loss {}".format(cur_epoch, round(train_loss, 3)))
-
+            print_attention_inputs()
             if args.do_eval:
                 # Eval model with dev dataset
                 if 'dev_loss' in dev_dataset:
