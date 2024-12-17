@@ -39,7 +39,7 @@ from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
-from hooks import self_attention_hook, cross_attention_hook, print_attention_inputs, get_attention_inputs
+from hooks import register_hooks, get_attention_inputs, delete_attention_inputs
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -176,10 +176,7 @@ def main():
     set_seed(args)
     config, model, tokenizer = build_or_load_gen_model(args)
     model.to(args.device)
-    if EXTERNAL_DECODER:
-        for n in range (model.config.num_decoder_layers):
-            self_attention_input = model.decoder.block[n].layer[0].SelfAttention.register_forward_hook(self_attention_hook)
-            cross_attention_input = model.decoder.block[n].layer[1].EncDecAttention.register_forward_hook(cross_attention_hook)
+    register_hooks(model)
     if args.n_gpu > 1:
         # for DataParallel
         model = torch.nn.DataParallel(model)
@@ -243,6 +240,11 @@ def main():
                 else:
                     outputs = model(input_ids=source_ids, attention_mask=source_mask,
                                     labels=target_ids, decoder_attention_mask=target_mask)
+                    
+                    self_attention_inputs_logs = get_attention_inputs()
+                    logger.info("self_attention_inputs: %s",self_attention_inputs_logs.keys())
+                    delete_attention_inputs()
+                    
                     loss = outputs.loss
 
                 if args.n_gpu > 1:
@@ -263,8 +265,7 @@ def main():
                     global_step += 1
                     train_loss = round(tr_loss * args.gradient_accumulation_steps / (nb_tr_steps + 1), 4)
                     bar.set_description("[{}] Train loss {}".format(cur_epoch, round(train_loss, 3)))
-                self_attention_inputs_logs = get_attention_inputs()
-                logger.info("self_attention_inputs: %s",self_attention_inputs_logs.keys())
+                
             if args.do_eval:
                 # Eval model with dev dataset
                 if 'dev_loss' in dev_dataset:
