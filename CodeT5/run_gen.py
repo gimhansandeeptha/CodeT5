@@ -39,7 +39,7 @@ from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
-from hooks import register_hooks, get_attention_inputs, delete_attention_inputs
+from hooks import register_hooks, AttentionInputsManager
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -176,7 +176,9 @@ def main():
     set_seed(args)
     config, model, tokenizer = build_or_load_gen_model(args)
     model.to(args.device)
-    register_hooks(model)
+    attention_inputs_manager = AttentionInputsManager()
+    register_hooks(model, attention_inputs_manager)
+
     if args.n_gpu > 1:
         # for DataParallel
         model = torch.nn.DataParallel(model)
@@ -241,10 +243,10 @@ def main():
                     outputs = model(input_ids=source_ids, attention_mask=source_mask,
                                     labels=target_ids, decoder_attention_mask=target_mask)
                     
-                    self_attention_inputs_logs = get_attention_inputs()
+                    self_attention_inputs_logs, cross_attention_inputs_logs  = attention_inputs_manager.get_attention_inputs()
                     logger.info("self_attention_inputs: %s",self_attention_inputs_logs.keys())
-                    delete_attention_inputs()
-                    
+                    attention_inputs_manager.clear_attention_inputs()
+
                     loss = outputs.loss
 
                 if args.n_gpu > 1:
