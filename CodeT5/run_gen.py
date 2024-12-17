@@ -263,7 +263,7 @@ def main():
                     global_step += 1
                     train_loss = round(tr_loss * args.gradient_accumulation_steps / (nb_tr_steps + 1), 4)
                     bar.set_description("[{}] Train loss {}".format(cur_epoch, round(train_loss, 3)))
-            print_attention_inputs()
+                print_attention_inputs()
             if args.do_eval:
                 # Eval model with dev dataset
                 if 'dev_loss' in dev_dataset:
