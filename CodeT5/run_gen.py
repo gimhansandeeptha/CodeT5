@@ -39,7 +39,7 @@ from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
-from hooks import self_attention_hook, cross_attention_hook, print_attention_inputs
+from hooks import self_attention_hook, cross_attention_hook, print_attention_inputs, get_attention_inputs
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -263,7 +263,8 @@ def main():
                     global_step += 1
                     train_loss = round(tr_loss * args.gradient_accumulation_steps / (nb_tr_steps + 1), 4)
                     bar.set_description("[{}] Train loss {}".format(cur_epoch, round(train_loss, 3)))
-                print_attention_inputs()
+                self_attention_inputs_logs = get_attention_inputs()
+                logger.info("self_attention_inputs: %s",self_attention_inputs_logs.keys())
             if args.do_eval:
                 # Eval model with dev dataset
                 if 'dev_loss' in dev_dataset:

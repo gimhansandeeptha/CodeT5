@@ -11,4 +11,6 @@ def cross_attention_hook(module, input, output):
 def print_attention_inputs ():
     print("self_attention_inputs: ", self_attention_inputs.keys())
     print("cross_attention_inputs: ", cross_attention_inputs.keys())
-    
+
+def get_attention_inputs():
+    return self_attention_inputs
