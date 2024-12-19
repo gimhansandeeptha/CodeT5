@@ -243,8 +243,8 @@ def main():
                     outputs = model(input_ids=source_ids, attention_mask=source_mask,
                                     labels=target_ids, decoder_attention_mask=target_mask)
                     
-                    self_attention_inputs_logs, cross_attention_inputs_logs  = attention_inputs_manager.get_attention_inputs()
-                    logger.info("self_attention_inputs: %s",self_attention_inputs_logs.keys())
+                    self_attention_input, cross_attention_input  = attention_inputs_manager.get_attention_inputs()
+                    logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
                     attention_inputs_manager.clear_attention_inputs()
 
                     loss = outputs.loss
