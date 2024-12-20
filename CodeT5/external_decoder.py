@@ -1,10 +1,12 @@
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
+import torch.nn as nn
 from t5_attention import AttentionModule
 from hooks import external_decoder_hook
 
-class ExternalDecoder():
+class ExternalDecoder(nn.Module):
     def __init__(self):
+        super(ExternalDecoder, self).__init__()
         print("initiate the external decoder")
         model_name = "Salesforce/codet5-small" 
         self.model = T5ForConditionalGeneration.from_pretrained(model_name)
