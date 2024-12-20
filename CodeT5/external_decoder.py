@@ -2,8 +2,9 @@ from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
 
 class ExternalDecoder():
-    def __init__(self): 
+    def __init__(self):
         # Load the pre-trained CodeT5 model
+        print("initiate the external decoder")
         model_name = "Salesforce/codet5-small"  # You can choose other variants like codet5-small, codet5-large, etc.
         self.model = T5ForConditionalGeneration.from_pretrained(model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)

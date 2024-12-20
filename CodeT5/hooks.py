@@ -43,6 +43,7 @@ def external_decoder_hook(attention_object: T5Attention, mutable_key_value_state
     """
     Hook function to merge attention outputs with external key-value states.
     """
+    print("external_decoder_hook registration function")
     def post_hook(module, input, output):
         # Compute external attention output
         attention_output = attention_object(

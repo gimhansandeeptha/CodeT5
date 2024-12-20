@@ -39,7 +39,7 @@ from evaluator.CodeBLEU import calc_code_bleu
 from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
-from hooks import register_hooks, AttentionInputsManager
+from hooks import register_hooks, external_decoder_hook, AttentionInputsManager
 from t5_attention import AttentionModule, MutableKeyValueStates
 from external_decoder import ExternalDecoder
 
