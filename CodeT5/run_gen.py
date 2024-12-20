@@ -245,6 +245,7 @@ def main():
         self_level_key_value_obj5, cross_level_key_value_obj5 = MutableKeyValueStates(), MutableKeyValueStates()
 
         external_decoder = ExternalDecoder()
+        external_decoder.to(args.device)
         external_decoder.register_hooks(0, self_level_key_value_obj0, cross_level_key_value_obj0)
         external_decoder.register_hooks(1, self_level_key_value_obj1, cross_level_key_value_obj1)
         external_decoder.register_hooks(2, self_level_key_value_obj2, cross_level_key_value_obj2)
@@ -273,6 +274,8 @@ def main():
                                     labels=target_ids, decoder_attention_mask=target_mask)
                     
                     self_attention_input, cross_attention_input  = attention_inputs_manager.get_attention_inputs()
+                    self_attention_input.to(args.device)
+                    cross_attention_input.to(args.device)
                     # logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
                     self_level_key_value_obj0.__setitem__(self_attention_input.get('block_0')[0])
                     self_level_key_value_obj1.__setitem__(self_attention_input.get('block_1')[0])
