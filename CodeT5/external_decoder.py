@@ -18,7 +18,7 @@ class ExternalDecoder():
 
     def register_hooks(self, block_number, self_level_key_value_obj, cross_level_key_value_obj):
         self.decoder.block[block_number].layer[0].SelfAttention.register_forward_hook(external_decoder_hook(
-                attention_object=self.self_level_attention, 
+                attention_object=self.self_level_attention,
                 mutable_key_value_obj=self_level_key_value_obj))
         self.decoder.block[block_number].layer[1].EncDecAttention.register_forward_hook(external_decoder_hook(
                 attention_object=self.cross_level_attention, 
