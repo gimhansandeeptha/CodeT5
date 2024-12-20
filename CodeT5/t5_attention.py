@@ -39,7 +39,7 @@ class AttentionModule(nn.Module):
         """
         return self.attention_layer(
             hidden_states=hidden_states,
-            key_value_states=key_value_states,
+            key_value_states=key_value_states.__getitem__(),
             mask=mask,
             output_attentions=output_attentions,
             query_length=query_length
@@ -55,5 +55,5 @@ class MutableKeyValueStates:
 
     def __setitem__(self, key_value_states):
         self.key_value_states = key_value_states
-        
+
     
