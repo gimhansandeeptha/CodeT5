@@ -290,8 +290,8 @@ def main():
 
                     if i == 1:
                         print("key_value_states: ",key_value_states[0].size(),key_value_states)
-                        print("self_attention_input: ",self_attention_input.get('block_0').size(), self_attention_input.get('block_0'))
-                        print("cross_attention_input: ",cross_attention_input.get('block_0').size(), cross_attention_input.get('block_0'))
+                        print("self_attention_input: ",self_attention_input.get('block_0')[0].size(), self_attention_input.get('block_0'))
+                        print("cross_attention_input: ",cross_attention_input.get('block_0')[0].size(), cross_attention_input.get('block_0'))
                         print("debug")
                         i = -1
 
