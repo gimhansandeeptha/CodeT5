@@ -290,8 +290,8 @@ def main():
 
                     if i == 1:
                         logger.info("key_value_states: %s",key_value_states[0].size())
-                        logger.info("self_attention_input: %s", self_attention_input.get('block_0'))
-                        logger.info("cross_attention_input: %s",cross_attention_input.get('block_0'))
+                        logger.info("self_attention_input: %s", self_attention_input.get('block_0').size())
+                        logger.info("cross_attention_input: %s",cross_attention_input.get('block_0').size())
                         logger.info("debug")
                         i = -1
 
