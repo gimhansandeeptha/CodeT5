@@ -4,43 +4,69 @@ import torch.nn as nn
 from t5_attention import AttentionModule
 from hooks import external_decoder_hook
 
+import torch
+import torch.nn as nn
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+from t5_attention import AttentionModule
+from hooks import external_decoder_hook
+
+
 class ExternalDecoder(nn.Module):
     def __init__(self):
         super(ExternalDecoder, self).__init__()
-        print("initiate the external decoder")
-        model_name = "Salesforce/codet5-small" 
+        print("Initiating the external decoder")
+        model_name = "Salesforce/codet5-small"
         self.model = T5ForConditionalGeneration.from_pretrained(model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+        # Use the decoder and lm_head from the pre-trained model
         self.decoder = self.model.decoder
+        self.lm_head = self.model.lm_head
         self.self_level_attention = AttentionModule()
         self.cross_level_attention = AttentionModule()
 
     def register_hooks(self, block_number, self_level_key_value_obj, cross_level_key_value_obj):
-        self.decoder.block[block_number].layer[0].SelfAttention.register_forward_hook(external_decoder_hook(
+        self.decoder.block[block_number].layer[0].SelfAttention.register_forward_hook(
+            external_decoder_hook(
                 attention_object=self.self_level_attention,
-                mutable_key_value_obj=self_level_key_value_obj))
-        self.decoder.block[block_number].layer[1].EncDecAttention.register_forward_hook(external_decoder_hook(
-                attention_object=self.cross_level_attention, 
-                mutable_key_value_obj=cross_level_key_value_obj))
-    
+                mutable_key_value_obj=self_level_key_value_obj,
+            )
+        )
+        self.decoder.block[block_number].layer[1].EncDecAttention.register_forward_hook(
+            external_decoder_hook(
+                attention_object=self.cross_level_attention,
+                mutable_key_value_obj=cross_level_key_value_obj,
+            )
+        )
+
     def forward(self, device):
-        # Example input
-        encoded_input = torch.randint(0, 100, (1, 10), device = device) 
+        encoded_input = torch.randint(0, 100, (1, 10), device=device)
         attention_mask = torch.ones_like(encoded_input, device=device)
 
-        decoder_input_ids = torch.tensor([[self.tokenizer.pad_token_id]], device=device)  #<pad> token
+        decoder_input_ids = torch.tensor(
+            [[self.tokenizer.pad_token_id]], device=device
+        )  # <pad> token
         decoder_attention_mask = torch.ones_like(decoder_input_ids, device=device)
 
-        # Decode sequence generation
-        outputs = self.decoder(
+        # generation
+        decoder_outputs = self.decoder(
             input_ids=decoder_input_ids,
             attention_mask=decoder_attention_mask,
-            encoder_hidden_states=torch.randn(1, 10, self.model.config.d_model, device=device),
+            encoder_hidden_states=torch.randn(
+                1, 10, self.model.config.d_model, device=device
+            ),
             encoder_attention_mask=attention_mask,
         )
 
-        # print("Decoder output shape:", outputs.last_hidden_state.shape)
-        return outputs
+        logits = self.lm_head(decoder_outputs.last_hidden_state)
+        predicted_tokens = torch.argmax(logits, dim=-1)
 
-        # For sequence generation, you'll need a loop or beam search method for autoregression.
+        decoded_output = self.tokenizer.batch_decode(
+            predicted_tokens, skip_special_tokens=True
+        )
+
+        return {
+            "logits": logits, 
+            "predicted_tokens": predicted_tokens, 
+            "decoded_output": decoded_output,
+        }

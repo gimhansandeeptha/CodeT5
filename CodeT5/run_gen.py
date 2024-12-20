@@ -290,16 +290,19 @@ def main():
                     cross_level_key_value_obj4.__setitem__(cross_attention_input.get('block_4')[0])
                     cross_level_key_value_obj5.__setitem__(cross_attention_input.get('block_5')[0])
 
+                    attention_inputs_manager.clear_attention_inputs()
+                    external_decoder_output = external_decoder.forward(device=args.device)
+                    loss = outputs.loss
+
                     if i == 1:
                         logger.info("key_value_states: %s",key_value_states.size())
                         logger.info("self_attention_input: %s", self_attention_input.get('block_0')[0].size())
                         logger.info("cross_attention_input: %s",cross_attention_input.get('block_0')[0].size())
+                        logger.info("external_decoder_output: %s", external_decoder_output.get("decoded_output"))
                         logger.info("debug")
                         i = -1
 
-                    attention_inputs_manager.clear_attention_inputs()
-                    external_decoder.forward(device=args.device)
-                    loss = outputs.loss
+                    
 
                 if args.n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
