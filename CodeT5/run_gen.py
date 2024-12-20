@@ -229,8 +229,8 @@ def main():
         not_loss_dec_cnt, not_bleu_em_inc_cnt = 0, 0 if args.do_eval_bleu else 1e6
         
         """This part is added"""
-        batch_size = 1
-        seq_length = 16
+        batch_size = 32
+        seq_length = 120
         d_model = 512
 
         key_value_states = torch.randn(batch_size, seq_length, d_model)
@@ -289,7 +289,7 @@ def main():
                     cross_level_key_value_obj5.__setitem__(key_value_states)
 
                     if i == 1:
-                        logger.info("key_value_states: %s",key_value_states[0].size())
+                        logger.info("key_value_states: %s",key_value_states.size())
                         logger.info("self_attention_input: %s", self_attention_input.get('block_0')[0].size())
                         logger.info("cross_attention_input: %s",cross_attention_input.get('block_0')[0].size())
                         logger.info("debug")
