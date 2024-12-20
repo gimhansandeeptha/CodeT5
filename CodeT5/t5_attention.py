@@ -45,3 +45,15 @@ class AttentionModule(nn.Module):
             query_length=query_length
         )
     
+class MutableKeyValueStates:
+    """A class to store mutable key_value_states."""
+    def __init__(self):
+        self.key_value_states = None
+
+    def __getitem__(self):
+        return self.key_value_states
+
+    def __setitem__(self, key_value_states):
+        self.key_value_states = key_value_states
+        
+    

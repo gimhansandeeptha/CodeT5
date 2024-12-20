@@ -38,6 +38,25 @@ def register_hooks(model, manager):
             model.decoder.block[n].layer[0].SelfAttention.register_forward_hook(_self_attention_hook(manager))
             model.decoder.block[n].layer[1].EncDecAttention.register_forward_hook(_cross_attention_hook(manager))
 
+def external_decoder_hook(attention_object: T5Attention, mutable_key_value_states):
+    """
+    Hook function to merge attention outputs with external key-value states.
+    """
+    def post_hook(module, input, output):
+        # Compute external attention output
+        attention_output = attention_object(
+            hidden_states=input[0],
+            key_value_states=mutable_key_value_states,
+            query_length=input[0].shape[1]
+        )
+
+        # Merge the outputs
+        merged_output = (output[0] + attention_output[0]) / 2
+
+        # Return a new tuple with the merged output replacing the original
+        return (merged_output,) + output[1:]
+    
+    return post_hook
 # self_attention_inputs = {}
 # cross_attention_inputs = {}
 # def self_attention_hook(module, input, output):
