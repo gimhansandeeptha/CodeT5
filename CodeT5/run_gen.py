@@ -40,6 +40,8 @@ from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
 from hooks import register_hooks, AttentionInputsManager
+from t5_attention import AttentionModule, MutableKeyValueStates
+from external_decoder import ExternalDecoder
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -225,6 +227,21 @@ def main():
         dev_dataset = {}
         global_step, best_bleu_em, best_ppl = 0, -1, 1e6
         not_loss_dec_cnt, not_bleu_em_inc_cnt = 0, 0 if args.do_eval_bleu else 1e6
+        
+        """This part is added"""
+        batch_size = 1
+        seq_length = 16
+        d_model = 512
+
+        attentionModule = AttentionModule()
+        key_value_states = torch.randn(batch_size, seq_length, d_model)
+        mutable_key_value_states = MutableKeyValueStates()
+        mutable_key_value_states.__setitem__(key_value_states)
+
+        external_decoder = ExternalDecoder()
+        external_decoder.decoder.block[0].layer[0].SelfAttention.register_forward_hook(external_decoder_hook(attention_object=attentionModule, mutable_key_value_states=mutable_key_value_states))
+
+        """close"""
 
         for cur_epoch in range(args.start_epoch, int(args.num_train_epochs)):
             bar = tqdm(train_dataloader, total=len(train_dataloader), desc="Training")
@@ -244,9 +261,9 @@ def main():
                                     labels=target_ids, decoder_attention_mask=target_mask)
                     
                     self_attention_input, cross_attention_input  = attention_inputs_manager.get_attention_inputs()
-                    logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
+                    # logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
                     attention_inputs_manager.clear_attention_inputs()
-
+                    external_decoder.forward()
                     loss = outputs.loss
 
                 if args.n_gpu > 1:
