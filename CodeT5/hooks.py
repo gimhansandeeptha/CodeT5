@@ -1,3 +1,4 @@
+from transformers.models.t5.modeling_t5 import T5Attention
 EXTERNAL_DECODER = True
 
 class AttentionInputsManager:
