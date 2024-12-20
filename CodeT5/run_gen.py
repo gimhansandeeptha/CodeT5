@@ -289,9 +289,9 @@ def main():
                     cross_level_key_value_obj5.__setitem__(key_value_states)
 
                     if i == 1:
-                        logger.info("key_value_states: ",key_value_states)
-                        logger.info("self_attention_input: ", self_attention_input)
-                        logger.info("cross_attention_input: ", cross_attention_input)
+                        print.info("key_value_states: ",key_value_states[0].size(),key_value_states)
+                        print.info("self_attention_input: ",self_attention_input[0].size(), self_attention_input)
+                        print.info("cross_attention_input: ",cross_attention_input[0].size(), cross_attention_input)
                         i = -1
 
                     attention_inputs_manager.clear_attention_inputs()
