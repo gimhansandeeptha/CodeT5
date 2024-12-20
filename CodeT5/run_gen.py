@@ -252,7 +252,7 @@ def main():
         external_decoder.register_hooks(4, self_level_key_value_obj4, cross_level_key_value_obj4)
         external_decoder.register_hooks(5, self_level_key_value_obj5, cross_level_key_value_obj5)
 
-
+        i = 1
         """close"""
 
         for cur_epoch in range(args.start_epoch, int(args.num_train_epochs)):
@@ -287,6 +287,12 @@ def main():
                     cross_level_key_value_obj3.__setitem__(key_value_states)
                     cross_level_key_value_obj4.__setitem__(key_value_states)
                     cross_level_key_value_obj5.__setitem__(key_value_states)
+
+                    if i == 1:
+                        logger.info("key_value_states: ",key_value_states)
+                        logger.info("self_attention_input: ", self_attention_input)
+                        logger.info("cross_attention_input: ", cross_attention_input)
+                        i = -1
 
                     attention_inputs_manager.clear_attention_inputs()
                     external_decoder.forward()
