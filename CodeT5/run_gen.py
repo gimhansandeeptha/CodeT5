@@ -290,8 +290,8 @@ def main():
 
                     if i == 1:
                         print("key_value_states: ",key_value_states[0].size(),key_value_states)
-                        print("self_attention_input: ",self_attention_input[0].size(), self_attention_input)
-                        print("cross_attention_input: ",cross_attention_input[0].size(), cross_attention_input)
+                        print("self_attention_input: ",self_attention_input.get(self_attention_input.keys()[0]).size(), self_attention_input.get(self_attention_input.keys()[0]))
+                        print("cross_attention_input: ",cross_attention_input.get(cross_attention_input.keys()[0]).size(), cross_attention_input.get(cross_attention_input.keys()[0]))
                         i = -1
 
                     attention_inputs_manager.clear_attention_inputs()
