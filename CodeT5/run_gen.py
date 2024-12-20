@@ -40,7 +40,7 @@ from evaluator.bleu import _bleu
 from utils import get_filenames, get_elapse_time, load_and_cache_gen_data
 from configs import add_args, set_seed, set_dist
 from hooks import register_hooks, external_decoder_hook, AttentionInputsManager
-from t5_attention import AttentionModule, MutableKeyValueStates
+from t5_attention import MutableKeyValueStates
 from external_decoder import ExternalDecoder
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -233,13 +233,25 @@ def main():
         seq_length = 16
         d_model = 512
 
-        attentionModule = AttentionModule()
         key_value_states = torch.randn(batch_size, seq_length, d_model)
-        mutable_key_value_states = MutableKeyValueStates()
-        mutable_key_value_states.__setitem__(key_value_states)
+        # mutable_key_value_states = MutableKeyValueStates()
+        # mutable_key_value_states.__setitem__(key_value_states)
+
+        self_level_key_value_obj0, cross_level_key_value_obj0 = MutableKeyValueStates(), MutableKeyValueStates()
+        self_level_key_value_obj1, cross_level_key_value_obj1 = MutableKeyValueStates(), MutableKeyValueStates()
+        self_level_key_value_obj2, cross_level_key_value_obj2 = MutableKeyValueStates(), MutableKeyValueStates()
+        self_level_key_value_obj3, cross_level_key_value_obj3 = MutableKeyValueStates(), MutableKeyValueStates()
+        self_level_key_value_obj4, cross_level_key_value_obj4 = MutableKeyValueStates(), MutableKeyValueStates()
+        self_level_key_value_obj5, cross_level_key_value_obj5 = MutableKeyValueStates(), MutableKeyValueStates()
 
         external_decoder = ExternalDecoder()
-        external_decoder.decoder.block[0].layer[0].SelfAttention.register_forward_hook(external_decoder_hook(attention_object=attentionModule, mutable_key_value_states=mutable_key_value_states))
+        external_decoder.register_hooks(0, self_level_key_value_obj0, cross_level_key_value_obj0)
+        external_decoder.register_hooks(1, self_level_key_value_obj1, cross_level_key_value_obj1)
+        external_decoder.register_hooks(2, self_level_key_value_obj2, cross_level_key_value_obj2)
+        external_decoder.register_hooks(3, self_level_key_value_obj3, cross_level_key_value_obj3)
+        external_decoder.register_hooks(4, self_level_key_value_obj4, cross_level_key_value_obj4)
+        external_decoder.register_hooks(5, self_level_key_value_obj5, cross_level_key_value_obj5)
+
 
         """close"""
 
@@ -262,6 +274,20 @@ def main():
                     
                     self_attention_input, cross_attention_input  = attention_inputs_manager.get_attention_inputs()
                     # logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
+                    self_level_key_value_obj0.__setitem__(key_value_states)
+                    self_level_key_value_obj1.__setitem__(key_value_states)
+                    self_level_key_value_obj2.__setitem__(key_value_states)
+                    self_level_key_value_obj3.__setitem__(key_value_states)
+                    self_level_key_value_obj4.__setitem__(key_value_states)
+                    self_level_key_value_obj5.__setitem__(key_value_states)
+
+                    cross_level_key_value_obj0.__setitem__(key_value_states)
+                    cross_level_key_value_obj1.__setitem__(key_value_states)
+                    cross_level_key_value_obj2.__setitem__(key_value_states)
+                    cross_level_key_value_obj3.__setitem__(key_value_states)
+                    cross_level_key_value_obj4.__setitem__(key_value_states)
+                    cross_level_key_value_obj5.__setitem__(key_value_states)
+
                     attention_inputs_manager.clear_attention_inputs()
                     external_decoder.forward()
                     loss = outputs.loss
