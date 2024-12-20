@@ -274,7 +274,7 @@ def main():
                                     labels=target_ids, decoder_attention_mask=target_mask)
                     
                     self_attention_input, cross_attention_input  = attention_inputs_manager.get_attention_inputs()
-                    
+
                     # logger.info("\nself_attention_inputs: %s",self_attention_input.keys())
                     self_level_key_value_obj0.__setitem__(self_attention_input.get('block_0')[0])
                     self_level_key_value_obj1.__setitem__(self_attention_input.get('block_1')[0])
@@ -298,7 +298,7 @@ def main():
                         i = -1
 
                     attention_inputs_manager.clear_attention_inputs()
-                    external_decoder.forward()
+                    external_decoder.forward(device=args.device)
                     loss = outputs.loss
 
                 if args.n_gpu > 1:

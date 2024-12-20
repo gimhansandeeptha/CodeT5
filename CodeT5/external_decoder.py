@@ -24,19 +24,19 @@ class ExternalDecoder(nn.Module):
                 attention_object=self.cross_level_attention, 
                 mutable_key_value_obj=cross_level_key_value_obj))
     
-    def forward(self):
+    def forward(self, device):
         # Example input
-        encoded_input = torch.randint(0, 100, (1, 10)) 
-        attention_mask = torch.ones_like(encoded_input)
+        encoded_input = torch.randint(0, 100, (1, 10), device = device) 
+        attention_mask = torch.ones_like(encoded_input, device=device)
 
-        decoder_input_ids = torch.tensor([[self.tokenizer.pad_token_id]])  #<pad> token
-        decoder_attention_mask = torch.ones_like(decoder_input_ids)
+        decoder_input_ids = torch.tensor([[self.tokenizer.pad_token_id]], device=device)  #<pad> token
+        decoder_attention_mask = torch.ones_like(decoder_input_ids, device=device)
 
         # Decode sequence generation
         outputs = self.decoder(
             input_ids=decoder_input_ids,
             attention_mask=decoder_attention_mask,
-            encoder_hidden_states=torch.randn(1, 10, self.model.config.d_model),
+            encoder_hidden_states=torch.randn(1, 10, self.model.config.d_model, device=device),
             encoder_attention_mask=attention_mask,
         )
 
